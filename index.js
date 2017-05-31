@@ -219,6 +219,7 @@ export default class Camera extends Component {
           height={this.props.viewFinderHeight}
           isLoading={this.props.viewFinderShowLoadingIndicator}
           width={this.props.viewFinderWidth}
+          pausePreview={this.props.pausePreview}
         />
       ) : null;
 
