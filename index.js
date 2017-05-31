@@ -125,6 +125,7 @@ export default class Camera extends Component {
     viewFinderHeight: PropTypes.number,
     viewFinderWidth: PropTypes.number,
     millisecondDelayBetweenScans: PropTypes.number,
+    pausePreview: PropTypes.bool
   };
 
   static defaultProps = {
