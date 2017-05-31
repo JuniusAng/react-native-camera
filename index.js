@@ -115,7 +115,8 @@ export default class Camera extends Component {
     type: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
-    ])
+    ]),
+    pausePreview: PropTypes.bool
   };
 
   static defaultProps = {

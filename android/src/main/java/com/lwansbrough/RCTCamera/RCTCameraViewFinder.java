@@ -120,13 +120,20 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     private void startPreview() {
         if (_surfaceTexture != null) {
-            startCamera();
+            if(_camera == null) {
+                startCamera();
+            }
+            else{
+                resumeCamera();
+            }
         }
     }
 
     private void stopPreview() {
         if (_camera != null) {
-            stopCamera();
+//            stopCamera();
+            //pause preview instead
+            pauseCamera();
         }
     }
 
@@ -136,30 +143,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
                 Camera.Parameters parameters = _camera.getParameters();
-
-                final boolean isCaptureModeStill = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL);
-                final boolean isCaptureModeVideo = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO);
-                if (!isCaptureModeStill && !isCaptureModeVideo) {
-                    throw new RuntimeException("Unsupported capture mode:" + _captureMode);
-                }
-
-                // Set auto-focus. Try to set to continuous picture/video, and fall back to general
-                // auto if available.
+                // set autofocus
                 List<String> focusModes = parameters.getSupportedFocusModes();
-                if (isCaptureModeStill && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-                } else if (isCaptureModeVideo && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
-                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-                } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                 }
-
                 // set picture size
                 // defaults to max available size
                 List<Camera.Size> supportedSizes;
-                if (isCaptureModeStill) {
+                if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL) {
                     supportedSizes = parameters.getSupportedPictureSizes();
-                } else if (isCaptureModeVideo) {
+                } else if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO) {
                     supportedSizes = RCTCamera.getInstance().getSupportedVideoSizes(_camera);
                 } else {
                     throw new RuntimeException("Unsupported capture mode:" + _captureMode);
@@ -186,7 +180,40 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             }
         }
     }
+    synchronized public void resumeCamera(){
+        if (!_isStarting) {
+            _isStarting = true;
+            try {
+                _camera.startPreview();
+                // send previews to `onPreviewFrame`
+                _camera.setPreviewCallback(this);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+                stopCamera();
+            } finally {
+                _isStarting = false;
+            }
+        }
+    }
+    synchronized public void pauseCamera(){
+        if (!_isStopping) {
+            _isStopping = true;
+            try {
+                if (_camera != null) {
+                    _camera.stopPreview();
+                    // stop sending previews to `onPreviewFrame`
+                    _camera.setPreviewCallback(null);
+                }
 
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                _isStopping = false;
+            }
+        }
+    }
     synchronized private void stopCamera() {
         if (!_isStopping) {
             _isStopping = true;
