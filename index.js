@@ -125,7 +125,6 @@ export default class Camera extends Component {
     viewFinderHeight: PropTypes.number,
     viewFinderWidth: PropTypes.number,
     millisecondDelayBetweenScans: PropTypes.number,
-    pausePreview: PropTypes.bool
   };
 
   static defaultProps = {
@@ -219,7 +218,6 @@ export default class Camera extends Component {
           height={this.props.viewFinderHeight}
           isLoading={this.props.viewFinderShowLoadingIndicator}
           width={this.props.viewFinderWidth}
-          pausePreview={this.props.pausePreview}
         />
       ) : null;
 

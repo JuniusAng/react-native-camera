@@ -86,9 +86,4 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         }
         view.setBarCodeTypes(result);
     }
-
-    @ReactProp(name = "pausePreview")
-    public void setPausePreview(RCTCameraView view, boolean pausePreview) {
-        view.setPausePreview(pausePreview);
-    }
 }

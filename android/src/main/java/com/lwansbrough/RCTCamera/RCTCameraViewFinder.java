@@ -120,20 +120,13 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     private void startPreview() {
         if (_surfaceTexture != null) {
-            if(_camera == null) {
-                startCamera();
-            }
-            else{
-                resumeCamera();
-            }
+            startCamera();
         }
     }
 
     private void stopPreview() {
         if (_camera != null) {
-//            stopCamera();
-            //pause preview instead
-            pauseCamera();
+           stopCamera();
         }
     }
 
